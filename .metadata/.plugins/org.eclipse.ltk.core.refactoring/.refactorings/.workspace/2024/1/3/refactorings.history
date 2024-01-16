@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;ExamSysNum/Core/Capteur&apos;" deleteContents="false" description="Delete resource &apos;ExamSysNum/Core/Capteur&apos;" element1="/ExamSysNum/Core/Capteur" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1705394094758"/>&#x0A;<refactoring comment="Delete resource &apos;ExamSysNum/Core/capteur.c&apos;" deleteContents="false" description="Delete resource &apos;ExamSysNum/Core/capteur.c&apos;" element1="/ExamSysNum/Core/capteur.c" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1705394115440"/>
+</session>

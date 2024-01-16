@@ -31,6 +31,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define UARTTxBuffer_SIZE 64
+#define I2C_Address 0x48
+#define TCN75S_TEMP_REG 0x00
 
 /* USER CODE END PD */
 
@@ -59,6 +62,9 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint8_t i2cRawData;
+
+uint8_t UartTxBuffer[UARTTxBuffer_SIZE];
 
 /* USER CODE END 0 */
 
@@ -69,6 +75,7 @@ static void MX_I2C1_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	uint16_t temperatureData=0;
 
   /* USER CODE END 1 */
 
@@ -93,6 +100,25 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
+  //On ecrit un texte par defaut pour tester la liaison uart
+  sprintf(UartTxBuffer,"Demo-board for sensor captor \r\n");
+  HAL_UART_Transmit(&huart2, UartTxBuffer, strlen(UartTxBuffer), 0xFFFF);
+
+
+  //On verifie que la communication est possible avec le capteur
+  if(HAL_OK==HAL_I2C_IsDeviceReady(&hi2c1,I2C_Address << 1,5,1000))
+  {
+	  sprintf(UartTxBuffer,"Device is Ready \r\n");
+	  HAL_UART_Transmit(&huart2, UartTxBuffer, strlen(UartTxBuffer), 0xFFFF);
+  }
+  else
+  {
+	  //Si le capteur n'est pas dispo on l'indique
+	  sprintf(UartTxBuffer,"Device is not Ready \r\n");
+	  HAL_UART_Transmit(&huart2, UartTxBuffer, strlen(UartTxBuffer), 0xFFFF);
+	  while(1);
+
+  }
 
   /* USER CODE END 2 */
 
@@ -101,6 +127,31 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+
+	  //On fait une lecture du capteur sur le registre indiquant la temperature ambiante soit 0x00
+	  if(HAL_I2C_Mem_Read(&hi2c1,I2C_Address<<1, TCN75S_TEMP_REG,1, &temperatureData, sizeof(temperatureData), 1000)==HAL_OK)
+		{
+		  //on l'affiche
+	  sprintf(UartTxBuffer,"Raw temperature : %ld \r\n",temperatureData);
+	  HAL_UART_Transmit(&huart2, UartTxBuffer, strlen(UartTxBuffer), 0xFFFF);
+
+
+	  //Traitement de la valeur obtenu pour l'avoir en une valeur lisible
+	  float temperature = (float)(temperatureData >> 4) * 0.0625f;
+
+	  //on l'affiche
+  sprintf(UartTxBuffer," temperature : %f \r\n",temperature);
+  HAL_UART_Transmit(&huart2, UartTxBuffer, strlen(UartTxBuffer), 0xFFFF);
+		}
+	  else
+	  {
+		  //Si on arrive pas a lire la temperature on ecrit un message
+		  sprintf(UartTxBuffer,"Could not get data \r\n");
+		  HAL_UART_Transmit(&huart2, UartTxBuffer, strlen(UartTxBuffer), 0xFFFF);
+
+	  }
+	  HAL_Delay(1000);
+
 
     /* USER CODE BEGIN 3 */
   }
